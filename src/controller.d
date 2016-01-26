@@ -5,15 +5,20 @@ import mangareader.helpers;
 import mangareader.directory;
 import dsfml.graphics;
 
-public class DirectoryController
+public abstract class Controller
 {
-    private Directory _selectedDir;
-
-    public void EventHandler(Event event)
-    {
-       
-    }
+	protected RenderWindow _window;
+	
+	protected this(RenderWindow window)
+	{
+		_window = window;
+	}
+	
+	public abstract bool EventHandler(Event event);
+	
+	public abstract void DrawingLoop();
 }
+
 
 public class MangaController
 {

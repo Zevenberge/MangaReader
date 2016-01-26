@@ -3,6 +3,9 @@ import dsfml.graphics;
 import mangareader.helpers;
 public static class Style
 {
+	public static const int InitialWindowWidth = 1800;
+	public static const int InitialWindowHeight = 900;
+	
    public static const int SelectionMargin = 5;
    public static const int TextTabWidth = 20;
    public static const int TextReturnSpace = 18;

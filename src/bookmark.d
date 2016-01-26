@@ -5,10 +5,12 @@ import std.experimental.logger;
 import std.file;
 import std.conv;
 
-class Bookmark
+public class Bookmark
 {
-	private string _bookmarkLocation = null;
-	private string _currentBookmark = null;
+	protected string _bookmarkLocation = null;
+	protected string _currentBookmark = null;
+	
+	protected this(){}
 	
 	public this(string folder)
 	{
@@ -33,7 +35,7 @@ class Bookmark
 		saveBookmark();
 	}
 	
-	private void loadBookmark()
+	protected void loadBookmark()
 	{
 		if(_bookmarkLocation is null) return;
 		_currentBookmark = std.file.read(_bookmarkLocation).to!string;
@@ -54,4 +56,15 @@ class Bookmark
 	{
 		_currentBookmark = imageLocation;
 	}
+	
+	public string currentBookmark()
+	{
+		return _currentBookmark;
+	}
 }
+
+
+
+
+
+
