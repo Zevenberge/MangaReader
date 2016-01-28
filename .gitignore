@@ -13,8 +13,12 @@
 
 # Executables
 *.exe
+mangareader
 
 # DUB
 .dub
 docs.json
 __dummy.html
+
+# Tests
+__test*
