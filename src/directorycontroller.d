@@ -2,12 +2,16 @@ module mangareader.directorycontroller;
 
 import mangareader.controller;
 import mangareader.directory;
+import mangareader.resources;
+import mangareader.resizingsprite;
 import dsfml.graphics;
+import std.experimental.logger;
 
 
 public class DirectoryController : Controller
 {
     private Directory _selectedDir;
+    private ResizingSprite _background;
     
     public this(RenderWindow window, Directory directory)
     in
@@ -20,10 +24,17 @@ public class DirectoryController : Controller
     
     	super(window);
     	_selectedDir = directory;
+    	_background = new ResizingSprite;
+    	_background.loadTextureFromFile(directoryBackground);
     }
 
     public override bool EventHandler(Event event)
     {
+    	if(event.type == event.EventType.Closed)
+    	{
+    		_window.close;
+    		return true;
+    	}
        return false;
     }
     
@@ -36,12 +47,37 @@ public class DirectoryController : Controller
     		{
     			if(EventHandler(event))
     			{
+    				info("Exiting the directory screen");
     				break windowLoop;	
     			}
     		}
     		_window.clear;
-    		_selectedDir.Draw(_window);
+			DrawBackgroundLayer;
+			DrawDirectoryLayer;
     		_window.display;
     	}
     }
+    
+    private void DrawBackgroundLayer()
+    {
+    	if(_background !is null)
+    	{
+    		_background.draw(_window);
+    	}
+    }
+    
+    private void DrawDirectoryLayer()
+    {
+    	_selectedDir.Draw(_window);
+    }
 }
+
+
+
+
+
+
+
+
+
+

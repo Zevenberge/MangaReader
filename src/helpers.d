@@ -3,8 +3,8 @@ module mangareader.helpers;
 import dsfml.graphics;
 import dsfml.system;
 import std.conv;
-import std.stdio;
 import std.path;
+import std.experimental.logger;
 /**
   A function that corrects the bounds for the given index.
 */
@@ -30,12 +30,80 @@ public IntRect CalculateTextureRect(Vector2u windowBounds, int textureWidth)
 /**
    Generic loading function that loads an image/etc from a file.
 */
-public void Load(T) (T loadable, string filename)
+public bool Load(T) (T loadable, string filename)
 {
   if(!loadable.loadFromFile(filename))
   {
-    writeln("File ", filename, "not found.");
+	mixin(FILE_NOT_FOUND_ERROR_LOGGER);
+    return false;
   }
+  return true;
+}
+public bool Load(T) (T loadable, string filename, IntRect boundsToRead)
+{
+  if(!loadable.loadFromFile(filename, boundsToRead))
+  {
+	mixin(FILE_NOT_FOUND_ERROR_LOGGER);
+    return false;
+  }
+  return true;
+}
+
+public void LoadSpriteAndTexture(TSprite)(ref TSprite sprite, ref Texture texture,
+					string filename, IntRect boundsToRead)
+{
+	mixin(textureMixin!("filename, boundsToRead"));
+}
+
+
+public void LoadSpriteAndTexture(TSprite)(ref TSprite sprite, ref Texture texture,
+					string filename) 
+{
+	mixin(textureMixin!("filename"));
+}
+
+public void SetTextureToSprite(Sprite sprite, Texture texture)
+{
+	texture.setSmooth(true);
+	sprite.setTexture(texture);
+}
+
+private template textureMixin(string arguments)
+{
+	const char[] textureMixin = 
+	`if(sprite is null) sprite = new TSprite;
+	if(texture is null) texture = new Texture;
+	if(!texture.Load(` ~ arguments ~ `))
+	{
+		return;
+	}
+	SetTextureToSprite(sprite, texture);`;
+}
+
+private const string FILE_NOT_FOUND_ERROR_LOGGER = `error("File not found : ", filename);`;
+private const string NEW_SPRITE_NEW_TEXTURE = `sprite = new Sprite; texture = new Texture;`;
+
+unittest
+{
+	info("Starting check on reference influence.");
+	Sprite sprite;
+	Texture texture;
+	assert(sprite is null);
+	assert(texture is null);
+	LoadSpriteAndTexture(sprite, texture, "");
+	assert(sprite !is null);
+	assert(texture !is null);
+	info("Out can alter the actual pointer.");
+}
+unittest
+{
+	import mangareader.resizingsprite;
+	info("Check templates for subclasses");
+	ResizingSprite sprite;
+	Texture texture;
+	LoadSpriteAndTexture(sprite, texture, "");
+	assert(sprite !is null);
+	info("Template succesfully fills subclasses");
 }
 
 /**

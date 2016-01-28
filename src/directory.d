@@ -40,6 +40,15 @@ public class Directory
       Draws itself onto the provided window.
     */
     public void Draw(RenderWindow window)
+    { // Draw Upwards
+    	if(_parentDirectory !is null) _parentDirectory.Draw(window);
+    	else DrawDownwards(window);
+    }
+    
+    /**
+      Draws itself and its children on the provided window.
+    */
+    protected void DrawDownwards(RenderWindow window)
     {
        if(_isSelected) 
        {
@@ -49,8 +58,9 @@ public class Directory
        if(!(_childDirectories is null))
        {
          foreach(directory; _childDirectories)
-             directory.Draw(window);
+             directory.DrawDownwards(window);
        }
+       window.draw(_text);
     }
 
     /**
