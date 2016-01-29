@@ -25,7 +25,7 @@ public static class Style
    {
       return RegularFont;
    }
-   public static const int DirectoryCharacterSize = 14;
+   public static const int DirectoryCharacterSize = 24;
    public static Color DirectoryTextColor()
    {
       return TextColor;
@@ -33,6 +33,6 @@ public static class Style
 
    public static const Color TextColor = Color.Black;
    public static const Color SelectedTextColor = Color(126,255,255,255);
-   public static const Color SelectionBackgroundColor = Color.Red;
+   public static const Color SelectionBackgroundColor = Color.Magenta;
    public static const Color BackgroundColor = Color.White;
 }

@@ -196,7 +196,7 @@ public class Directory
     /**
        Moves to the next directory, if there is one.
     */
-    public Directory Next()
+    public Directory SelectNext()
     {
       if(_parentDirectory !is null)
       {
@@ -208,7 +208,7 @@ public class Directory
     /**
        Moves to the previous directory, if there is one.
     */
-    public Directory Previous()
+    public Directory SelectPrevious()
     {
       if(_parentDirectory !is null)
       {
@@ -220,7 +220,7 @@ public class Directory
     /**
       Select this entry and place the selection nicely. As there is only one 'selection' in the whole program, move it every selection.
     */
-    private Directory Select()
+    public Directory SelectDirectory()
     {
        _isSelected = true;
        FloatRect textBounds = _text.getGlobalBounds;
@@ -238,7 +238,7 @@ public class Directory
        if(HasChildren)
        {
           this._isSelected = false;
-          return _currentChild.Select();
+          return _currentChild.SelectDirectory();
        }
        return this;
     }
@@ -250,9 +250,9 @@ public class Directory
     {
        _currentChild._isSelected = false;
        _childSelection = CorrectBounds(_childSelection + 1, _childDirectories.length);
-       return _currentChild.Select;
+       return _currentChild.SelectDirectory;
     }
-
+    
     /**
       Selects the parent directory. If there is none, try to load it.
     */
@@ -261,7 +261,7 @@ public class Directory
        if(AbsolutePath == "/") return this;
        if(_parentDirectory is null) GetParent;
        this._isSelected = false;
-       return _parentDirectory.Select;
+       return _parentDirectory.SelectDirectory;
     }
 
     /**
@@ -271,7 +271,7 @@ public class Directory
     {
        _currentChild._isSelected = false;
        _childSelection = CorrectBounds(_childSelection - 1, _childDirectories.length);
-       return _currentChild.Select;
+       return _currentChild.SelectDirectory;
     }
 
     /**
@@ -279,6 +279,7 @@ public class Directory
     */
     private void SetupGraphics()
     {
+    	_selection.fillColor(Style.SelectionBackgroundColor);
        _text = new Text();
        _text.setFont(Style.DirectoryFont);
        _text.setString(Name);

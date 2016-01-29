@@ -24,6 +24,7 @@ public class DirectoryController : Controller
     
     	super(window);
     	_selectedDir = directory;
+    	_selectedDir.SelectDirectory;
     	_background = new ResizingSprite;
     	_background.loadTextureFromFile(directoryBackground);
     }
@@ -35,7 +36,36 @@ public class DirectoryController : Controller
     		_window.close;
     		return true;
     	}
+    	if(event.type == event.EventType.KeyReleased)
+    	{
+    		return KeyEventHandler(event);
+    	}
        return false;
+    }
+    
+    private bool KeyEventHandler(Event event)
+    {
+    	switch(event.key.code) with (Keyboard.Key)
+    	{
+    		case Escape:
+    			return true;
+			case Left:
+				_selectedDir = _selectedDir.SelectParent;
+				break;
+			case Right:
+				_selectedDir = _selectedDir.SelectChild;
+				break;
+			case Up:
+				_selectedDir = _selectedDir.SelectPrevious;
+				break;
+			case Down:
+				_selectedDir = _selectedDir.SelectNext;
+				break;
+			case Return:
+				break;
+			default:
+    	}
+    	return false;
     }
     
     public override void DrawingLoop()
