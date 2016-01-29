@@ -8,6 +8,7 @@ import std.algorithm.comparison;
 import std.algorithm.iteration;
 import std.algorithm.sorting;
 import std.file;
+import std.experimental.logger;
 import mangareader.style;
 import mangareader.helpers;
 /**
@@ -84,6 +85,14 @@ public class Directory
     {
        return _text.getGlobalBounds;
     }
+    
+    /**
+        get the position of the text.
+    */
+    public @property auto position()
+    {
+    	return _text.position;
+    }
 
     /**
       Return whether this directory has directories loaded in memory.
@@ -123,17 +132,26 @@ public class Directory
     */
     public void ForceLoadChildren()
     {
-       auto subDirs = Subdirectories;
-       foreach(subDir; subDirs)
-       {
-         Directory newDir = new Directory(subDir.name ,this);
-         _childDirectories ~= newDir;
-       }
-       PlaceChildren;
+    	try
+    	{
+       		auto subDirs = Subdirectories;
+		   foreach(subDir; subDirs)
+		   {
+			 Directory newDir = new Directory(subDir.name ,this);
+			 _childDirectories ~= newDir;
+		   }
+       	}
+    	catch(FileException e)
+    	{
+    		info("Could not load children:", e.msg);
+    		return;
+    	}
+       
+	   PlaceChildren;
     }
     
     /**
-    	Place the children 
+    	Place the children, recursively.
     */
     private void PlaceChildren()
     {
@@ -144,23 +162,31 @@ public class Directory
     		auto bounds = _childDirectories[i-1].getGlobalBounds;
     		_childDirectories[i].MoveRelativeToSomething(bounds, 0f, 1f);
     	}
+    	foreach(child; _childDirectories)
+    	{
+    		child.PlaceChildren;
+    	}
     }
 
     /**
       Fetches the parent directory of the current directory.
     */
-    private void GetParent()
+    private Directory GetParent()
     {
+    	if(_parentDirectory !is null) return _parentDirectory;
        string parentPath = AbsolutePath.GetParentDirectory;
-       if(AbsolutePath == parentPath) return;
+       if(AbsolutePath == parentPath) return this;
        auto parent = new Directory(parentPath, null);
        parent.LoadChild();
        foreach(i, child; parent._childDirectories)
        {
          if(child.AbsolutePath != this.AbsolutePath) continue;
+         _text.position = child.position;
          parent._childDirectories[i] = this;
          parent._childSelection = i.to!int;
        }
+       PlaceChildren;
+       return _parentDirectory = parent;
     }
     
     /**
