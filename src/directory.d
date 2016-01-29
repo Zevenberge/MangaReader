@@ -1,8 +1,12 @@
 module mangareader.directory;
 
 import dsfml.graphics;
+import std.range;
 import std.path;
 import std.conv;
+import std.algorithm.comparison;
+import std.algorithm.iteration;
+import std.algorithm.sorting;
 import std.file;
 import mangareader.style;
 import mangareader.helpers;
@@ -16,6 +20,7 @@ public class Directory
     private int _childSelection = 0;
     private Directory _currentChild() { return _childDirectories[_childSelection];}
     private bool _isSelected = false; // FIXME: Is _isSelected merely a verification tool now that all the selections return the selected directory? No, also used to draw the selection.
+    private bool _isVisible = true;
     private string _path;
 
     private Text _text;
@@ -50,6 +55,7 @@ public class Directory
     */
     protected void DrawDownwards(RenderWindow window)
     {
+    	if(!_isVisible) return;
        if(_isSelected) 
        {
          window.draw(_selection);
@@ -100,26 +106,17 @@ public class Directory
     */
     private auto Subdirectories()
     {
-       //auto subFiles = dirEntries(AbsolutePath, SpanMode.shallow).where(d => d.isDir);
-       auto subFiles = dirEntries(AbsolutePath, SpanMode.shallow);
+       auto subFiles = dirEntries(AbsolutePath, SpanMode.shallow)
+       						.filter!(d => d.isDir && d.baseName[0] != '.');
        DirEntry[] subDirs;
        foreach(subFile; subFiles)
        {
-          if(subFile.isDir) subDirs ~= subFile;
+          subDirs ~= subFile;
        }
+	   subDirs.sort!((dirA, dirB) => dirA < dirB, SwapStrategy.unstable);
        return subDirs;
     }
 
-    /**
-      Aligns the children such that, if a new parent directory is selected (i.e. /home/user => /home), the old entries are nicely aligned.
-    */
-    private void AlignChildren()
-    {
-       foreach(child; _childDirectories)
-       {
-          child.MoveRelativeToParent;
-       }
-    }
 
     /**
       Try to load the children regardless of whether they are already loaded in memory.
@@ -132,6 +129,21 @@ public class Directory
          Directory newDir = new Directory(subDir.name ,this);
          _childDirectories ~= newDir;
        }
+       PlaceChildren;
+    }
+    
+    /**
+    	Place the children 
+    */
+    private void PlaceChildren()
+    {
+    	if(_childDirectories.length == 0) return;
+    	_childDirectories[0].MoveRelativeToParent;
+    	for(int i = 1; i < _childDirectories.length; ++i)
+    	{
+    		auto bounds = _childDirectories[i-1].getGlobalBounds;
+    		_childDirectories[i].MoveRelativeToSomething(bounds, 0f, 1f);
+    	}
     }
 
     /**
@@ -150,6 +162,29 @@ public class Directory
          parent._childSelection = i.to!int;
        }
     }
+    
+    /**
+       Returns the largest width of all children.
+    */
+    private float GetMaximumChildWidth()
+    {
+    	auto widths = _childDirectories.map!(cd => cd.getGlobalBounds.width);
+    	float maxWidth = 0f;
+    	foreach(width; widths)
+    	{
+    		if(width > maxWidth) maxWidth = width;
+    	}
+    	return maxWidth;
+    }
+    
+    /**
+    	Returns the largest width of the current column.
+    */
+    private float GetMaximumWidth()
+    {
+    	if(_parentDirectory is null) return getGlobalBounds.width;
+    	return _parentDirectory.GetMaximumChildWidth();
+    }
 
     /**
       Load the children if they are not already loaded.
@@ -166,7 +201,8 @@ public class Directory
     public void MoveRelativeToParent()
     {
        auto parentBounds = _parentDirectory.getGlobalBounds;
-       MoveRelativeToSomething(parentBounds, 1);  
+       parentBounds.width = _parentDirectory.GetMaximumWidth();
+       MoveRelativeToSomething(parentBounds, 1f, 1f);  
     }
 
     /**
@@ -175,8 +211,8 @@ public class Directory
     public void MoveRelativeToSelectedChild()
     {
         auto childBounds = _childDirectories[_childSelection].getGlobalBounds;
-        MoveRelativeToSomething(childBounds, -1);
-        AlignChildren();
+        MoveRelativeToSomething(childBounds, -1f, -1f);
+        PlaceChildren();
         if(_parentDirectory !is null)
         {
           _parentDirectory.MoveRelativeToSelectedChild;
@@ -186,11 +222,11 @@ public class Directory
     /**
       Moves the text relative to the bounds specified multiplied with the multiplier.
     */
-    private void MoveRelativeToSomething(FloatRect bounds, float multiplier)
+    private void MoveRelativeToSomething(FloatRect bounds, float horizontalMultiplier, float verticalMultiplier)
     {
          _text.position = 
-            Vector2f(bounds.left + multiplier * Style.TextTabWidth,
-                     bounds.top +  multiplier * Style.TextReturnSpace); 
+            Vector2f(bounds.left + horizontalMultiplier * (Style.TextTabWidth + bounds.width),
+                     bounds.top +  verticalMultiplier * Style.TextReturnSpace); 
     }
 
     /**
@@ -200,6 +236,7 @@ public class Directory
     {
       if(_parentDirectory !is null)
       {
+      	HideChildren;
         return _parentDirectory.SelectNextChild();
       }
       return this;
@@ -212,6 +249,7 @@ public class Directory
     {
       if(_parentDirectory !is null)
       {
+      	HideChildren;
         return _parentDirectory.SelectPreviousChild;
       }
       return this;
@@ -223,10 +261,21 @@ public class Directory
     public Directory SelectDirectory()
     {
        _isSelected = true;
+       ShowChildren;
        FloatRect textBounds = _text.getGlobalBounds;
        _selection.position = Vector2f(textBounds.left - Style.SelectionMargin, textBounds.top - Style.SelectionMargin);
        _selection.size = Vector2f(textBounds.width + 2*Style.SelectionMargin, textBounds.height + 2*Style.SelectionMargin);
+       _text.setColor(Style.SelectedTextColor);
        return this;
+    }
+    
+    /**
+      Unselect this entry.
+    */
+    public void UnselectDirectory()
+    {
+    	_isSelected = false;
+    	_text.setColor(Style.DirectoryTextColor);
     }
 
     /**
@@ -237,7 +286,7 @@ public class Directory
        LoadChild();
        if(HasChildren)
        {
-          this._isSelected = false;
+          this.UnselectDirectory;
           return _currentChild.SelectDirectory();
        }
        return this;
@@ -248,7 +297,7 @@ public class Directory
     */
     private Directory SelectNextChild()
     {
-       _currentChild._isSelected = false;
+       _currentChild.UnselectDirectory;
        _childSelection = CorrectBounds(_childSelection + 1, _childDirectories.length);
        return _currentChild.SelectDirectory;
     }
@@ -260,7 +309,7 @@ public class Directory
     {
        if(AbsolutePath == "/") return this;
        if(_parentDirectory is null) GetParent;
-       this._isSelected = false;
+       this.UnselectDirectory;
        return _parentDirectory.SelectDirectory;
     }
 
@@ -269,7 +318,7 @@ public class Directory
     */
     private Directory SelectPreviousChild()
     {
-       _currentChild._isSelected = false;
+       _currentChild.UnselectDirectory;
        _childSelection = CorrectBounds(_childSelection - 1, _childDirectories.length);
        return _currentChild.SelectDirectory;
     }
@@ -286,4 +335,41 @@ public class Directory
        _text.setCharacterSize(Style.DirectoryCharacterSize);
        _text.setColor(Style.DirectoryTextColor);
     }
+    
+    /**
+      Hides the children from view.
+    */
+    private void HideChildren()
+    {
+    	_childDirectories.each!(cd => cd.Hide);
+    }
+    
+    /**
+      Turn invisible.
+    */
+    private void Hide()
+    {
+    	_isVisible = false;
+    }
+    
+    /**
+      Display the children.
+    */
+    private void ShowChildren()
+    {
+    	_childDirectories.each!(cd => cd.Show);
+    }
+    
+    /**
+      Turn visible.
+    */
+    private void Show()
+    {
+    	_isVisible = true;
+    }
 }
+
+
+
+
+
