@@ -2,7 +2,9 @@ module mangareader.helpers;
 
 import dsfml.graphics;
 import dsfml.system;
+import std.format;
 import std.conv;
+import std.algorithm.comparison;
 import std.path;
 import std.experimental.logger;
 /**
@@ -17,14 +19,64 @@ public int CorrectBounds(int index, size_t length )
 
 /**
   Calculates the texture rectangle that is needed to fill the window horizontally.
-*/
-public IntRect CalculateTextureRect(Vector2u windowBounds, int textureWidth)
+*/ // TODO: implement this in page self such that this can use the scrolling position
+public IntRect CalculateTextureRectForManga(FloatRect windowBounds, Vector2u textureSize)
 {
   IntRect rekt;
-  rekt.width = textureWidth;
-  float scale = windowBounds.x/textureWidth;
-  rekt.height = (scale * windowBounds.y).to!int;
+  rekt.width = textureSize.x;
+  float scale = windowBounds.width/textureSize.x;
+  rekt.height = (scale * windowBounds.height).to!int;
   return rekt;
+}
+
+/**
+  Calculates the texture rectangle for the file menu.
+*/
+public IntRect CalculateTextureRectForDirectory(FloatRect windowBounds, Vector2u textureSize)
+{
+	float scale = 1f;
+	if(textureSize.x < windowBounds.width || textureSize.y < windowBounds.height)
+	{ // As the window is larger than the texture, we need to scale the texture.
+		auto scaleX = textureSize.x / windowBounds.width;
+		auto scaleY = textureSize.y / windowBounds.height;
+		scale = min(scaleX, scaleY);
+	} 
+	IntRect rekt;
+	with(rekt)
+	{
+		width = (scale * windowBounds.width).to!int;
+		height = (scale * windowBounds.height).to!int;
+		left = Center(width, textureSize.x).to!int;
+		top = Center(height, textureSize.y).to!int;
+	}
+	return rekt;
+}
+
+unittest
+{
+	info("Starting a test that checks the resulting texture rectangle given a large texture.");
+	auto windowBounds = Vector2f(200,400).toRect;
+	auto textureSize = Vector2u(500,1000);
+	auto textureRect = CalculateTextureRectForDirectory(windowBounds, textureSize);
+	assert(windowBounds.width == textureRect.width);
+	assert(textureRect.left == 150, "left = %s".format(textureRect.left));
+	assert(textureRect.top == 300, "top = %s".format(textureRect.top));
+	assert(windowBounds.height == textureRect.height);
+	info("Finished the test that checks the large texture rect");
+}
+
+public float Center(float dX, float width)
+{
+	return (width - dX)/2;
+}
+
+unittest
+{
+	info("Starting the center test");
+	assert(Center(10,10) == 0);
+	assert(Center(8,10) == 1);
+	assert(Center(4,5) == 0.5f);
+	info("Finished the center test");
 }
 
 /**
@@ -55,10 +107,77 @@ public void LoadSpriteAndTexture(TSprite)(ref TSprite sprite, ref Texture textur
 	mixin(textureMixin!("filename, boundsToRead"));
 }
 
+public Vector2!T toVector(T)(Rect!T rectangle)
+{
+	return Vector2!T(rectangle.width, rectangle.height);
+}
+
+public Rect!T toRect(T)(Vector2!T vector)
+{
+	return Rect!T(0,0,vector.x, vector.y);
+}
+
+unittest
+{
+	info("Starting vector => rect conversion test");
+	auto vector = Vector2f(42f, 121f);
+	auto rekt = vector.toRect;
+	assert(vector.x == rekt.width);
+	assert(vector.y == rekt.height);
+	info("Completed vector => rect conversion test");
+}
+
+public Vector2f pix2scale(T1,T2)(Vector2!T1 actualSize, Vector2!T2 desiredSize, Vector2i initialWindowSize, Vector2i actualWindowSize)
+{
+	Vector2f scale;
+	Vector2f initialScale;
+	initialScale.x = desiredSize.x.to!float / actualSize.x.to!float;
+	initialScale.y = desiredSize.y.to!float / actualSize.y.to!float;
+	scale.x = (initialScale.x * initialWindowSize.x.to!float / actualWindowSize.x.to!float).to!float;
+	scale.y = (initialScale.y * initialWindowSize.y.to!float / actualWindowSize.y.to!float).to!float;
+	return scale;
+}
+
+unittest
+{
+	info("Starting a basic pix2scale test.");
+	auto actualSize = Vector2f(100,200);
+	auto desiredSize = Vector2f(100,200);
+	auto initialWindowSize = Vector2i(100,200);
+	auto actualWindowSize = Vector2i(100,200);
+	auto scale = pix2scale(actualSize, desiredSize, initialWindowSize, actualWindowSize);
+	assert(scale.x == 1);
+	assert(scale.y == 1);
+	info("Completed the basic pix2scale test.");
+}
+unittest
+{
+	info("Starting a pix2scale test for window resizing.");
+	auto actualSize = Vector2f(100,200);
+	auto desiredSize = Vector2f(100,200);
+	auto initialWindowSize = Vector2i(100,200);
+	auto actualWindowSize = Vector2i(150,100);
+	auto scale = pix2scale(actualSize, desiredSize, initialWindowSize, actualWindowSize);
+	assert(scale.x == 2f/3f, "Scale x = " ~scale.x.to!string);
+	assert(scale.y == 2f, "Scale y = " ~scale.y.to!string);
+	info("Completed a pix2scale test for window resizing.");
+}
+unittest
+{
+	info("Starting a pix2scale test for the original resizing.");
+	auto actualSize = Vector2f(100,200);
+	auto desiredSize = Vector2f(150,400);
+	auto initialWindowSize = Vector2i(100,200);
+	auto actualWindowSize = Vector2i(100,200);
+	auto scale = pix2scale(actualSize, desiredSize, initialWindowSize, actualWindowSize);
+	assert(scale.x == 1.5f, "Scale x = " ~scale.x.to!string);
+	assert(scale.y == 2f, "Scale y = " ~scale.y.to!string);
+	info("Completed a pix2scale test for ordinary resizing.");
+}
 
 public void LoadSpriteAndTexture(TSprite)(ref TSprite sprite, ref Texture texture,
 					string filename) 
-{
+{ 
 	mixin(textureMixin!("filename"));
 }
 
@@ -71,8 +190,7 @@ public void SetTextureToSprite(Sprite sprite, Texture texture)
 private template textureMixin(string arguments)
 {
 	const char[] textureMixin = 
-	`if(sprite is null) sprite = new TSprite;
-	if(texture is null) texture = new Texture;
+	`if(texture is null) texture = new Texture;
 	if(!texture.Load(` ~ arguments ~ `))
 	{
 		return;
@@ -83,7 +201,7 @@ private template textureMixin(string arguments)
 private const string FILE_NOT_FOUND_ERROR_LOGGER = `error("File not found : ", filename);`;
 private const string NEW_SPRITE_NEW_TEXTURE = `sprite = new Sprite; texture = new Texture;`;
 
-unittest
+/+unittest
 {
 	info("Starting check on reference influence.");
 	Sprite sprite;
@@ -104,7 +222,7 @@ unittest
 	LoadSpriteAndTexture(sprite, texture, "");
 	assert(sprite !is null);
 	info("Template succesfully fills subclasses");
-}
+}+/
 
 /**
    Returns the rooted path.
@@ -191,8 +309,8 @@ public N bottom(N) (Rect!N rectangle)
 /** FIXME: Is this function doomed to have no purpose? :(
    Shortcut function that calculates the floatrect of a given window.
 */
-public FloatRect getGlobalBounds(Window window)
+public FloatRect getGlobalBounds(RenderTarget window)
 {
-   auto size = window.size;
+   auto size = window.getSize;
    return FloatRect(0, 0, size.x, size.y);
 }

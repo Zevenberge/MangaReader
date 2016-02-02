@@ -6,13 +6,14 @@ import mangareader.page;
 import mangareader.helpers;
 import mangareader.filereader;
 import mangareader.bookmark;
+import mangareader.resizingsprite;
 import dsfml.graphics;
 
 public class Manga
 {
   alias DSprite = dsfml.graphics.Sprite;
 
-  private DSprite _sprite;
+  private ResizingSprite _sprite;
   private RenderWindow _window;
   private Page[] _pages;
   private int _currentPage;
@@ -26,7 +27,7 @@ public class Manga
   /**
     Fetches the sprite that displays the page that is currently being read.
   */
-  public DSprite Sprite()
+  public ResizingSprite Sprite()
   {
      return _sprite;
   }
@@ -89,12 +90,13 @@ public class Manga
     Vector2u textureSize = texture.getSize;   
  
     // Resize the selection.
-    ResizeTextureRect(textureSize);
+    // FIXME: should be implemented by resizingSprite.
+    //ResizeTextureRect(textureSize);
 
     return true;
   }
 
-  /**
+  /+/**
     Resizes the area of the texture that is being read based on the width of the texture and the off-set from the top of the page.
   */
   private void ResizeTextureRect(Vector2u textureSize, int offSet=0)
@@ -105,7 +107,7 @@ public class Manga
      _sprite.textureRect(textureRect);
      MoveAndResizeSprite(textureSize);
      MoveTextureRect(offSet);
-  }
+  }+/
 
   /**
     If the window is larger vertically than the sprite, center the sprite vertically and resize it to the size of the texture.

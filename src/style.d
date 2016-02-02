@@ -5,6 +5,7 @@ public static class Style
 {
 	public static const int InitialWindowWidth = 1800;
 	public static const int InitialWindowHeight = 900;
+	public static const Vector2i InitialWindowSize = Vector2i(1800,900);
 	
    public static const int SelectionMargin = 5;
    public static const int TextTabWidth = 20;

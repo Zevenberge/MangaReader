@@ -2,8 +2,10 @@ module mangareader.directorycontroller;
 
 import mangareader.controller;
 import mangareader.directory;
+import mangareader.helpers;
 import mangareader.resources;
 import mangareader.resizingsprite;
+import mangareader.style;
 import dsfml.graphics;
 import std.experimental.logger;
 
@@ -25,7 +27,8 @@ public class DirectoryController : Controller
     	super(window);
     	_selectedDir = directory;
     	_selectedDir.SelectDirectory;
-    	_background = new ResizingSprite;
+    	_background = new ResizingSprite(Style.InitialWindowSize, Style.InitialWindowSize);
+    	_background.boundsCalculation = &CalculateTextureRectForDirectory;
     	_background.loadTextureFromFile(directoryBackground);
     }
 
