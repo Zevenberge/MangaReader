@@ -28,11 +28,12 @@ public class DirectoryController : Controller
     	_selectedDir = directory;
     	_selectedDir.SelectDirectory;
     	_background = new ResizingSprite(Style.InitialWindowSize, Style.InitialWindowSize);
+    	debug {_background.name = "directory select background";}
     	_background.boundsCalculation = &CalculateTextureRectForDirectory;
     	_background.loadTextureFromFile(directoryBackground);
     }
 
-    public override bool EventHandler(Event event)
+    public override bool HandleEvent(Event event)
     {
     	if(event.type == event.EventType.Closed)
     	{
@@ -71,24 +72,11 @@ public class DirectoryController : Controller
     	return false;
     }
     
-    public override void DrawingLoop()
+    public override void Draw()
     {
-    	windowLoop: while(_window.isOpen)
-    	{
-    		Event event;
-    		while(_window.pollEvent(event))
-    		{
-    			if(EventHandler(event))
-    			{
-    				info("Exiting the directory screen");
-    				break windowLoop;	
-    			}
-    		}
     		_window.clear;
-			DrawBackgroundLayer;
-			DrawDirectoryLayer;
-    		_window.display;
-    	}
+ 			DrawBackgroundLayer;
+			DrawDirectoryLayer;   	
     }
     
     private void DrawBackgroundLayer()

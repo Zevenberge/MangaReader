@@ -14,9 +14,9 @@ public abstract class Controller
 		_window = window;
 	}
 	
-	public abstract bool EventHandler(Event event);
+	public abstract bool HandleEvent(Event event);
 	
-	public abstract void DrawingLoop();
+	public abstract void Draw();
 }
 
 

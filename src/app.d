@@ -2,6 +2,7 @@ module mangareader.application;
 
 import mangareader.globalbookmark;
 import mangareader.directorycontroller;
+import mangareader.controller;
 import mangareader.directory;
 import mangareader.style;
 import dsfml.graphics;
@@ -15,8 +16,24 @@ void main()
 	assert(GrandBookmark !is null);
 	auto window = new RenderWindow(VideoMode(Style.InitialWindowWidth, Style.InitialWindowHeight), "MangaReader");
 	auto initialDirectory = new Directory(GrandBookmark.currentBookmark, null);
-	auto controller = new DirectoryController(window, initialDirectory);
-	controller.DrawingLoop;
+	controller = new DirectoryController(window, initialDirectory);
+
+	windowLoop: while(window.isOpen)
+	{
+		Event event;
+		while(window.pollEvent(event))
+		{
+			if(controller.HandleEvent(event))
+			{ 
+				info("Exiting ", controller.classinfo);
+				break windowLoop;	
+			}
+			controller.Draw;
+			window.display;
+		}
+		controller.Draw;
+		window.display;
+	}
 }
 
 string GlobalBookmarkLocation()
@@ -25,6 +42,8 @@ string GlobalBookmarkLocation()
 }
 
 GlobalBookmark GrandBookmark;
+
+public Controller controller;
 
 static this()
 {

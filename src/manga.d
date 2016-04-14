@@ -36,9 +36,16 @@ public class Manga
     Reads the pages from the given directory. Returns true if the loading succeeded and false if the loading did not succeed.
   */
   public bool LoadPages(string directory)
+  in
+  {
+  	 import std.file;
+     assert(directory.isDir);
+  }
+  body
   {
   	 scope(failure) return false;
   	 _bookmark = new Bookmark(directory);
+  	 //TODO : actually load the pages.
      return true;
   }
 

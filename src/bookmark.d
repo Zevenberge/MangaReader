@@ -52,11 +52,22 @@ public class Bookmark
 		std.file.write(_bookmarkLocation, _currentBookmark);
 	}
 	
+	/++
+	  Updates the bookmark with the given filename. The filename should be an absolute path.
+	+/
 	public void updateBookmark(string imageLocation)
+	in
+	{
+		assert(imageLocation.isAbsolute);
+	}
+	body
 	{
 		_currentBookmark = imageLocation;
 	}
 	
+	/++
+	  Gets the current bookmark. Returns null if there is no bookmark.
+	+/
 	public string currentBookmark()
 	{
 		return _currentBookmark;

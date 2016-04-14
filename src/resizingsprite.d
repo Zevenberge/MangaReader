@@ -27,6 +27,18 @@ public class ResizingSprite : Sprite
 		_desiredSize = desiredSize;
 	}
 	
+	~this()
+	{
+		debug
+		{
+			trace("Destroying ", name);
+		}
+	}
+	debug
+	{
+		public string name;
+	}
+	
 	public void draw(RenderTarget target)
 	{
 		if(isResized(target))
