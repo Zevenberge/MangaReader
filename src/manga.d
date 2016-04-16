@@ -57,17 +57,21 @@ public class Manga
   {
   	 info("Reading directory ", directory, " for manga pages.");
   	 _directory = directory;
-  	 trace("Updated global bookmark.");
   	 scope(failure) return false;
-  	 trace("Creating new bookmark in the local directory.");
-  	 _bookmark = new Bookmark(directory);
+  	 
   	 trace("Searching for files.");
   	 auto files = directory.dirEntries(SpanMode.shallow);
   	 trace("Mapping the files to Page[]");
   	 _pages = files.filter!(f => f.isImage).map!(i => new Page(i.name)).array;
   	 info("Found ", _pages.length, " pages in the directory.");
   	 auto hasPages = !_pages.empty;
-  	 if(hasPages) GrandBookmark.updateBookmark(directory);
+  	 if(hasPages) 
+  	 {
+  	 	GrandBookmark.updateBookmark(directory);
+	    trace("Updated global bookmark.");
+  	    trace("Creating new bookmark in the local directory.");
+  	    _bookmark = new Bookmark(directory);
+  	 }
      return hasPages;
   }
   
@@ -113,7 +117,7 @@ public class Manga
   
   public ~this()
   {
-  	debug writeln("Destroying manga from ", Directory);
+  	debug writeln("Destroying manga from ", _directory);
   }
   
   /++
@@ -134,7 +138,6 @@ public class Manga
   	 auto rekt = _sprite.textureRect;
   	 rekt.top = rekt.top + Style.ScrollSpeed;
   	 _sprite.textureRect = rekt;
-  	
   }
 
   /**
@@ -167,7 +170,18 @@ public class Manga
     if(page.Texture is null) page.LoadTexture;
     //Claim the texture.
     auto texture = page.Texture; // Notational convenience.
-    debug _sprite.name = page.Filename;
+    trace("Claimed the texture.");
+    if(_sprite is null)
+    {
+    	info("Creating a new sprite");
+    	_sprite = new ResizingSprite(Style.InitialWindowSize, Style.InitialWindowSize);
+    }
+    debug 
+    {
+    	trace("Setting the sprite's name");
+    	_sprite.name = page.Filename;
+   	}
+    trace("Setting the sprite's texture.");
     _sprite.setTexture(texture);
 
     //Grab the width of the original texture.
@@ -180,20 +194,7 @@ public class Manga
     trace("Finished loading page ", newPage);
     return true;
   }
-
-  /+/**
-    Resizes the area of the texture that is being read based on the width of the texture and the off-set from the top of the page.
-  */
-  private void ResizeTextureRect(Vector2u textureSize, int offSet=0)
-  {
-     Vector2u windowBounds = WindowSize;
-     int textureWidth = textureSize.x; 
-     IntRect textureRect = CalculateTextureRect(WindowSize, textureWidth);
-     _sprite.textureRect(textureRect);
-     MoveAndResizeSprite(textureSize);
-     MoveTextureRect(offSet);
-  }+/
-
+  
   /**
     If the window is larger vertically than the sprite, center the sprite vertically and resize it to the size of the texture.
   */

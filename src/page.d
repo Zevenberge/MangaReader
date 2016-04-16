@@ -19,6 +19,10 @@ public class Page
    */
    public string Filename()
    {
+   	  debug{
+   	  	trace("Getting the page's filename");
+   	  	trace("which is ", _filename);
+   	  	}
       return _filename;
    }
 

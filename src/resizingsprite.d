@@ -24,6 +24,7 @@ public class ResizingSprite : Sprite
 	
 	public this(Vector2i initialWindowSize, Vector2f desiredSize)
 	{
+		info("Creating new resizing sprite.");
 		_initialWindowSize = initialWindowSize;
 		_desiredSize = desiredSize;
 	}

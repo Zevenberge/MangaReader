@@ -30,7 +30,7 @@ public class DirectoryController : Controller
     	_selectedDir = directory;
     	_selectedDir.SelectDirectory;
     	_background = new ResizingSprite(Style.InitialWindowSize, Style.InitialWindowSize);
-    	debug {_background.name = "directory select background";}
+    	debug { _background.name = "directory select background";}
     	_background.boundsCalculation = &CalculateTextureRectForDirectory;
     	_background.loadTextureFromFile(directoryBackground);
     }

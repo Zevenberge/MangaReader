@@ -14,6 +14,7 @@ public class Bookmark
 	
 	public this(string folder)
 	{
+		info("Constructing bookmark.");
 		if(!folder.isDir)
 		{
 			error("Given string was not a directory. Ignoring bookmarks.");
@@ -37,8 +38,10 @@ public class Bookmark
 	
 	protected void loadBookmark()
 	{
+		info("Loading bookmark.");
 		if(_bookmarkLocation is null) return;
 		_currentBookmark = std.file.read(_bookmarkLocation).to!string;
+		trace("Loaded bookmark.");
 	}
 	
 	private void saveBookmark()
