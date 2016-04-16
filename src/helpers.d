@@ -19,6 +19,16 @@ public int CorrectBounds(int index, size_t length )
   return index;
 }
 
+unittest
+{
+	assert(CorrectBounds(0, 217) == 0);
+	assert(CorrectBounds(-1, 217) == 0);
+	assert(CorrectBounds(1, 217) == 1);
+	assert(CorrectBounds(2, 217) == 2);
+	assert(CorrectBounds(216, 217) == 216);
+	assert(CorrectBounds(217, 217) == 216);
+}
+
 /**
   Calculates the texture rectangle that is needed to fill the window horizontally.
 */ // TODO: implement this in page self such that this can use the scrolling position

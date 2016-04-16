@@ -161,9 +161,11 @@ public class Manga
   */
   private bool NewPage(int newPage)
   {
-  	trace("Loading page ",newPage);
+  	info("Fetching new page.");
     // Fetch the new page.
     int index = CorrectBounds(newPage, _pages.length);
+    scope(success) _currentPage = index;
+  	trace("Loading page ", index);
     debug trace("Amount of pages is ", _pages.length);
     auto page = _pages[index];
     // Force a load of the texture if it is not already loaded.
@@ -191,7 +193,7 @@ public class Manga
     auto rekt = _sprite.textureRect;
     rekt.top = 0;
     _sprite.textureRect = rekt;
-    trace("Finished loading page ", newPage);
+    trace("Finished loading page ", index);
     return true;
   }
   
