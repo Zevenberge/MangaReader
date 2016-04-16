@@ -51,6 +51,7 @@ public class DirectoryController : Controller
     
     private bool KeyEventHandler(Event event)
     {
+    	trace(event.key.code, " pressed.");
     	switch(event.key.code) with (Keyboard.Key)
     	{
     		case Escape:
@@ -77,13 +78,18 @@ public class DirectoryController : Controller
     
     private void EnterManga()
     {
-    	auto manga = new Manga(_window);
+    	info("Opening the manga in folder ", _selectedDir.AbsolutePath);
+    	auto manga = new Manga;
+    	trace("Loading pages.");
     	if(!manga.LoadPages(_selectedDir.AbsolutePath))
     	{
+    		warning("No images found in the selected directory.");
     		return;
     	}	
-    	manga.OpenManga;
+    	manga.OpenManga(_window);
+    	trace("Opened the manga.");
     	controller = new MangaController(_window, manga);
+    	info("Handed over control to the manga controller.");
    	}
     
     public override void Draw()

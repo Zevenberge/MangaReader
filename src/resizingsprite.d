@@ -4,6 +4,7 @@ import dsfml.graphics;
 import std.experimental.logger;
 import std.conv;
 import std.format;
+import std.stdio;
 import mangareader.helpers;
 
 public class ResizingSprite : Sprite
@@ -31,7 +32,7 @@ public class ResizingSprite : Sprite
 	{
 		debug
 		{
-			trace("Destroying ", name);
+			writeln("Destroying ", name);
 		}
 	}
 	debug

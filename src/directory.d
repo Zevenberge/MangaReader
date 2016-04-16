@@ -8,6 +8,7 @@ import std.algorithm.comparison;
 import std.algorithm.iteration;
 import std.algorithm.sorting;
 import std.file;
+import std.stdio;
 import std.experimental.logger;
 import mangareader.style;
 import mangareader.helpers;
@@ -40,6 +41,11 @@ public class Directory
        _path = absolutePath;
        _parentDirectory = parentDirectory;
        SetupGraphics();
+    }
+    
+    public ~this()
+    {
+    	debug writeln("Destroying directory.");
     }
 
     /**

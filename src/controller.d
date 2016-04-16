@@ -1,6 +1,7 @@
 module mangareader.controller;
 
 import std.experimental.logger;
+import std.stdio;
 import mangareader.manga;
 import mangareader.helpers;
 import mangareader.directory;
@@ -17,7 +18,7 @@ public abstract class Controller
 	
 	~this()
 	{
-		trace("Destroying ", this.classinfo);
+		debug writeln("Destroying ", this.classinfo);
 	}
 	
 	public abstract bool HandleEvent(Event event);

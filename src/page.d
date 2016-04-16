@@ -2,6 +2,7 @@ module mangareader.page;
 
 import dsfml.graphics;
 import std.stdio;
+import std.experimental.logger;
 
 public class Page
 {
@@ -36,6 +37,7 @@ public class Page
    */
    public bool UnloadTexture()
    {
+   	 info("Unloading texture from ", _filename);
      scope(failure) return false;
      destroy(_texture);
      return true;
@@ -46,12 +48,14 @@ public class Page
    */
    public bool LoadTexture()
    {
+   	  info("Loading texture from ", _filename);
       _texture = new DTexture();
       if(!_texture.loadFromFile(_filename))
       {
-        writeln("File ", _filename, "not found.");
+        error("File ", _filename, "not found.");
         return false;
       }
+      trace("Succesfully loaded texture.");
       return true;
    }
 }

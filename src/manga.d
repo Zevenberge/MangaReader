@@ -6,6 +6,7 @@ import std.conv;
 import std.experimental.logger;
 import std.file;
 import std.math;
+import std.stdio;
 import mangareader.globalbookmark;
 import mangareader.page;
 import mangareader.helpers;
@@ -54,17 +55,31 @@ public class Manga
   }
   body
   {
+  	 info("Reading directory ", directory, " for manga pages.");
   	 _directory = directory;
-  	 GrandBookmark.updateBookmark(directory);
+  	 trace("Updated global bookmark.");
   	 scope(failure) return false;
+  	 trace("Creating new bookmark in the local directory.");
   	 _bookmark = new Bookmark(directory);
+  	 trace("Searching for files.");
   	 auto files = directory.dirEntries(SpanMode.shallow);
+  	 trace("Mapping the files to Page[]");
   	 _pages = files.filter!(f => f.isImage).map!(i => new Page(i.name)).array;
-     return !_pages.empty;
+  	 info("Found ", _pages.length, " pages in the directory.");
+  	 auto hasPages = !_pages.empty;
+  	 if(hasPages) GrandBookmark.updateBookmark(directory);
+     return hasPages;
   }
   
-  public void OpenManga()
+  public void OpenManga(RenderWindow window)
+  in
   {
+  		assert(window !is null);
+  }
+  body
+  {
+     _window = window;
+  	info("Opening the manga.");
   	if(_pages.empty) 
   	{
   		info("No pages found.");
@@ -83,21 +98,22 @@ public class Manga
   	 		}
   	 	}
   	 }
+  	 info("Opening at page ", index);
   	 NewPage(index);
+  	 info("Opened the manga.");
   }
 
   /**
      Saves the window for future reference. This is forced by the constructor such that it can never be null.
   */
-  public this(RenderWindow window)
-  in
+  public this()
   {
-     assert(!(window is null));
+    debug trace("Creating manga"); 
   }
-  body
+  
+  public ~this()
   {
-     _window = window;
-     
+  	debug writeln("Destroying manga from ", Directory);
   }
   
   /++
