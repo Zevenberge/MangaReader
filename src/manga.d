@@ -1,6 +1,7 @@
 module mangareader.manga;
 
 import std.algorithm.iteration;
+import std.algorithm.sorting;
 import std.array;
 import std.conv;
 import std.experimental.logger;
@@ -62,7 +63,8 @@ public class Manga
   	 trace("Searching for files.");
   	 auto files = directory.dirEntries(SpanMode.shallow);
   	 trace("Mapping the files to Page[]");
-  	 _pages = files.filter!(f => f.isImage).map!(i => new Page(i.name)).array;
+  	 _pages = files.filter!(f => f.isImage).map!(i => new Page(i.name)).array
+  	 	.sort!((x,y) => x.Filename < y.Filename).array;
   	 info("Found ", _pages.length, " pages in the directory.");
   	 auto hasPages = !_pages.empty;
   	 if(hasPages) 
@@ -190,11 +192,17 @@ public class Manga
     Vector2u textureSize = texture.getSize;   
  
     // Place the texture rectangle at height 0.
-    auto rekt = _sprite.textureRect;
-    rekt.top = 0;
-    _sprite.textureRect = rekt;
+    ResetTextureRect;
     trace("Finished loading page ", index);
     return true;
+  }
+  
+  private void ResetTextureRect()
+  {
+  	trace("Resetting texture rectangle.");
+  	auto rekt = _sprite.textureRect;
+    rekt.top = 0;
+    _sprite.textureRect = rekt;
   }
   
   /**
