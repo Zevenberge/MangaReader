@@ -8,6 +8,11 @@ public class Page
    alias DTexture = dsfml.graphics.Texture;
    private string _filename;
 
+
+   public this(string filename)
+   {
+   	 _filename = filename;
+   }
    /**
      Returns the filename of the manga.
    */

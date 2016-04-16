@@ -1,4 +1,4 @@
-module mangareader.application;
+module mangareader.app;
 
 import mangareader.globalbookmark;
 import mangareader.directorycontroller;
@@ -18,21 +18,36 @@ void main()
 	auto initialDirectory = new Directory(GrandBookmark.currentBookmark, null);
 	controller = new DirectoryController(window, initialDirectory);
 
-	windowLoop: while(window.isOpen)
+	try
 	{
-		Event event;
-		while(window.pollEvent(event))
+		windowLoop: while(window.isOpen)
 		{
-			if(controller.HandleEvent(event))
-			{ 
-				info("Exiting ", controller.classinfo);
-				break windowLoop;	
+			Event event;
+			while(window.pollEvent(event))
+			{
+				if(controller.HandleEvent(event))
+				{ 
+					info("Exiting ", controller.classinfo);
+					break windowLoop;	
+				}
+				controller.Draw;
+				window.display;
 			}
 			controller.Draw;
 			window.display;
 		}
-		controller.Draw;
-		window.display;
+		info("Application shut down normally.");
+	}
+	catch(Throwable t)
+	{
+		error("Application error");
+		while(t !is null)
+		{
+			error(t.msg, "\n", t.file, " at ", t.line	);
+			error("Stacktrace: \n", t.info);
+			t = t.next;
+		}
+		throw t;
 	}
 }
 
@@ -41,9 +56,7 @@ string GlobalBookmarkLocation()
 	return "~/.bookmarks".expandTilde;
 }
 
-GlobalBookmark GrandBookmark;
 
-public Controller controller;
 
 static this()
 {

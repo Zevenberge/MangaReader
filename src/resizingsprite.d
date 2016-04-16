@@ -43,6 +43,7 @@ public class ResizingSprite : Sprite
 	{
 		if(isResized(target))
 		{
+			info("Window is resized");
 			onTargetResize(target.getGlobalBounds);
 		}
 		target.draw(this);
@@ -61,8 +62,14 @@ public class ResizingSprite : Sprite
 		return true;
 	}
 	
+	private void onSourceResize()
+	{
+		onTargetResize(_previousSize);
+	}
+	
 	private void onTargetResize(FloatRect newTargetSize)
 	{
+		debug info("Attempting to resize ", name);
 		if(boundsCalculation is null) 
 		{
 			info("ResizingSprite could not resize - transformation not given.");
@@ -77,6 +84,13 @@ public class ResizingSprite : Sprite
 		newWindowSize.y = newTargetSize.height.to!int;
 		scale = pix2scale(textureRect.toVector, newWindowSize, _initialWindowSize, newWindowSize);
 		trace("Scale is (", scale.x, ",", scale.y, ").");
+	}
 	
+	public override void setTexture(const Texture texture, bool rectReset = false)
+	{
+		info("Texture changed.");
+		super.setTexture(texture, rectReset);
+		onSourceResize;
+		trace("Finished changing and scaling texture.");
 	}
 }

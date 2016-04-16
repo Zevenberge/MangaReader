@@ -3,6 +3,8 @@ module mangareader.directorycontroller;
 import mangareader.controller;
 import mangareader.directory;
 import mangareader.helpers;
+import mangareader.manga;
+import mangareader.mangacontroller;
 import mangareader.resources;
 import mangareader.resizingsprite;
 import mangareader.style;
@@ -66,11 +68,23 @@ public class DirectoryController : Controller
 				_selectedDir = _selectedDir.SelectNext;
 				break;
 			case Return:
+				EnterManga;
 				break;
 			default:
     	}
     	return false;
     }
+    
+    private void EnterManga()
+    {
+    	auto manga = new Manga(_window);
+    	if(!manga.LoadPages(_selectedDir.AbsolutePath))
+    	{
+    		return;
+    	}	
+    	manga.OpenManga;
+    	controller = new MangaController(_window, manga);
+   	}
     
     public override void Draw()
     {

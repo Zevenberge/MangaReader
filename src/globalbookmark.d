@@ -39,3 +39,6 @@ public class GlobalBookmark : Bookmark
 		return _currentBookmark is null ? "~".expandTilde : _currentBookmark;
 	}
 }
+
+
+public GlobalBookmark GrandBookmark;

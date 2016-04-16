@@ -1,5 +1,6 @@
 module mangareader.controller;
 
+import std.experimental.logger;
 import mangareader.manga;
 import mangareader.helpers;
 import mangareader.directory;
@@ -14,18 +15,14 @@ public abstract class Controller
 		_window = window;
 	}
 	
+	~this()
+	{
+		trace("Destroying ", this.classinfo);
+	}
+	
 	public abstract bool HandleEvent(Event event);
 	
 	public abstract void Draw();
 }
 
-
-public class MangaController
-{
-    private Manga _manga;
-
-    public void EventHandler(Event event)
-    {
-
-    }
-}
+public Controller controller;

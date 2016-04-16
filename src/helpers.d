@@ -5,7 +5,9 @@ import dsfml.system;
 import std.format;
 import std.conv;
 import std.algorithm.comparison;
+import std.file;
 import std.path;
+import std.range;
 import std.experimental.logger;
 /**
   A function that corrects the bounds for the given index.
@@ -313,4 +315,33 @@ public FloatRect getGlobalBounds(RenderTarget window)
 {
    auto size = window.getSize;
    return FloatRect(0, 0, size.x, size.y);
+}
+
+/**
+  Checks whether the given file has an image extension.
+*/
+public bool isImage(DirEntry file)
+{
+	return isImage(file.name);
+}
+private bool isImage(string filename)
+{
+	auto extention = filename.extension;
+	return extention == ".png" ||
+			extention == ".jpg" ||
+			extention == ".jpeg";
+	
+}
+unittest
+{
+	assert("hello.png".isImage);
+	assert("hello.jpg".isImage);
+	assert("hello.jpeg".isImage);
+	assert(!"hello.doc".isImage);
+
+}
+
+public bool isNullOrEmpty(T)(T range)
+{
+	return range == null || range.empty;
 }

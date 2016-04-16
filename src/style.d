@@ -1,7 +1,7 @@
 module mangareader.style;
 import dsfml.graphics;
 import mangareader.helpers;
-public static class Style
+public class Style
 {
 	public static const int InitialWindowWidth = 1800;
 	public static const int InitialWindowHeight = 900;
@@ -36,4 +36,5 @@ public static class Style
    public static const Color SelectedTextColor = Color(126,255,255,255);
    public static const Color SelectionBackgroundColor = Color.Magenta;
    public static const Color BackgroundColor = Color.White;
+   public static const int ScrollSpeed = 50;
 }
