@@ -1,5 +1,6 @@
 module mangareader.manga;
 
+import std.algorithm.comparison;
 import std.algorithm.iteration;
 import std.algorithm.sorting;
 import std.array;
@@ -128,8 +129,7 @@ public class Manga
   public void MoveUp()
   {
   	 auto rekt = _sprite.textureRect;
-  	 rekt.top = rekt.top - Style.ScrollSpeed;
-  	 _sprite.textureRect = rekt;
+  	 MoveTextureRect(rekt.top - Style.ScrollSpeed);
   }
   
   /**
@@ -138,8 +138,7 @@ public class Manga
   public void MoveDown()
   {
   	 auto rekt = _sprite.textureRect;
-  	 rekt.top = rekt.top + Style.ScrollSpeed;
-  	 _sprite.textureRect = rekt;
+  	 MoveTextureRect(rekt.top + Style.ScrollSpeed);
   }
 
   /**
@@ -177,8 +176,7 @@ public class Manga
     trace("Claimed the texture.");
     if(_sprite is null)
     {
-    	info("Creating a new sprite");
-    	_sprite = new ResizingSprite(Style.InitialWindowSize, Style.InitialWindowSize);
+    	InitializeSprite;
     }
     debug 
     {
@@ -195,6 +193,14 @@ public class Manga
     ResetTextureRect;
     trace("Finished loading page ", index);
     return true;
+  }
+  
+  private void InitializeSprite()
+  {
+  	info("Creating a new sprite");
+    _sprite = new ResizingSprite(Style.InitialWindowSize, Style.InitialWindowSize);
+  	_sprite.boundsCalculation = &CalculateTextureRectForManga;
+  	
   }
   
   private void ResetTextureRect()
@@ -255,7 +261,7 @@ public class Manga
   private void MoveTextureRect(int offSet)
   {
      IntRect textureRect = _sprite.textureRect;
-     textureRect.top = offSet;
+     textureRect.top = max(0, min(offSet, _sprite.getTexture.getSize.y - textureRect.height));
      _sprite.textureRect = textureRect; 
   }
 
@@ -264,7 +270,7 @@ public class Manga
   */
   public void Draw()
   {
-     _window.draw(_sprite);
+  	 _sprite.draw(_window);
   }
 
 }

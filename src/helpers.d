@@ -34,10 +34,21 @@ unittest
 */ // TODO: implement this in page self such that this can use the scrolling position
 public IntRect CalculateTextureRectForManga(FloatRect windowBounds, Vector2u textureSize)
 {
+	trace("Incoming window bounds are h:", windowBounds.height, " w:", windowBounds.width);
+	trace("Incoming texture size are h:", textureSize.y, " w:", textureSize.x);
   IntRect rekt;
   rekt.width = textureSize.x;
-  float scale = windowBounds.width/textureSize.x;
-  rekt.height = (scale * windowBounds.height).to!int;
+  if(windowBounds.width == 0)
+  {
+  	rekt.height = textureSize.y;
+  }
+  else
+  {
+    float scale = textureSize.x/windowBounds.width;
+  	//trace("Scale is ", scale);
+    rekt.height = (scale * windowBounds.height).to!int;
+  }
+	trace("Outgoing texture bounds are h:", rekt.height, " w:", rekt.width);
   return rekt;
 }
 

@@ -78,6 +78,7 @@ public class ResizingSprite : Sprite
 			return;
 		}
 		trace("Resizing sprite.");
+		
 		textureRect = boundsCalculation(newTargetSize, getTexture.getSize);
 		trace("New texture rectangle: L:%s | T:%s | W:%s | H:%s"
 			.format(textureRect.left, textureRect.top, textureRect.width, textureRect.height));
