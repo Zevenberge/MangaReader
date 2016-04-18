@@ -22,3 +22,6 @@ __dummy.html
 
 # Tests
 __test*
+
+# Edits
+*.swp
