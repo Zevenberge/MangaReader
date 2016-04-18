@@ -118,9 +118,12 @@ public class Manga
     debug trace("Creating manga"); 
   }
   
-  public ~this()
+  /++
+    Saves the bookmark.
+  +/
+  public void SaveBookmark()
   {
-  	debug writeln("Destroying manga from ", _directory);
+  	_bookmark.saveBookmark;
   }
   
   /++
@@ -165,7 +168,11 @@ public class Manga
   	info("Fetching new page.");
     // Fetch the new page.
     int index = CorrectBounds(newPage, _pages.length);
-    scope(success) _currentPage = index;
+    scope(success)
+    {
+       _currentPage = index;
+       _bookmark.updateBookmark(_pages[index].Filename);
+    }
   	trace("Loading page ", index);
     debug trace("Amount of pages is ", _pages.length);
     auto page = _pages[index];

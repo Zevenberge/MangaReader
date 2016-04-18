@@ -24,6 +24,8 @@ public abstract class Controller
 	public abstract bool HandleEvent(Event event);
 	
 	public abstract void Draw();
+	
+	public abstract void RoundUp();
 }
 
 public Controller controller;

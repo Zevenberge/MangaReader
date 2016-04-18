@@ -1,5 +1,6 @@
 module mangareader.mangacontroller;
 
+import std.experimental.logger;
 import mangareader.controller;
 import mangareader.directory;
 import mangareader.directorycontroller;
@@ -16,6 +17,7 @@ public class MangaController : Controller
 	}
 	body
 	{
+		trace("Creating mangacontroller.");
 		_manga = manga;
 		super(window);
 	}
@@ -41,6 +43,7 @@ public class MangaController : Controller
     	switch(event.key.code) with (Keyboard.Key)
     	{
     		case Escape:
+    			RoundUp;
     			.controller = new DirectoryController(_window, new Directory(_manga.Directory, null));
     			break;
 			case Left:
@@ -58,6 +61,11 @@ public class MangaController : Controller
 			default:
     	}
     	return false;
+    }
+    
+    public override void RoundUp()
+    {
+    	_manga.SaveBookmark();
     }
     
     public override void Draw()

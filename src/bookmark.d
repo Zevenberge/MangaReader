@@ -4,6 +4,7 @@ import std.path;
 import std.experimental.logger;
 import std.file;
 import std.conv;
+import std.stdio;
 
 public class Bookmark
 {
@@ -20,7 +21,7 @@ public class Bookmark
 			error("Given string was not a directory. Ignoring bookmarks.");
 			return;
 		}
-		_bookmarkLocation = folder ~ "/.bookmarks";
+		_bookmarkLocation = folder ~ "/lastread";
 		if(!_bookmarkLocation.exists)
 		{
 			info("No bookmarks found for " ~ folder);
@@ -30,12 +31,13 @@ public class Bookmark
 			loadBookmark();
 		}
 	}
-	
+	/+
 	public ~this()
 	{
+		debug writeln("Destroying ", this.classinfo, ", saving.");
 		saveBookmark();
 	}
-	
+	+/
 	protected void loadBookmark()
 	{
 		info("Loading bookmark.");
@@ -44,14 +46,14 @@ public class Bookmark
 		trace("Loaded bookmark.");
 	}
 	
-	private void saveBookmark()
+	public void saveBookmark()
 	{
 		if(_bookmarkLocation is null)
 		{
 			info("Invalid directory, ignoring bookmark.");
 		}
 		scope(failure) error("Failed to succesfully save a bookmark.");
-		scope(success) info("Saved the bookmark.");
+		scope(success) info("Saved the bookmark to ", _bookmarkLocation);
 		std.file.write(_bookmarkLocation, _currentBookmark);
 	}
 	

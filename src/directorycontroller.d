@@ -10,6 +10,7 @@ import mangareader.resizingsprite;
 import mangareader.style;
 import dsfml.graphics;
 import std.experimental.logger;
+import std.stdio;
 
 
 public class DirectoryController : Controller
@@ -33,6 +34,10 @@ public class DirectoryController : Controller
     	debug { _background.name = "directory select background";}
     	_background.boundsCalculation = &CalculateTextureRectForDirectory;
     	_background.loadTextureFromFile(directoryBackground);
+    }
+    ~this()
+    {
+    	debug writeln("Destroying directory controller.");
     }
 
     public override bool HandleEvent(Event event)
@@ -91,6 +96,8 @@ public class DirectoryController : Controller
     	controller = new MangaController(_window, manga);
     	info("Handed over control to the manga controller.");
    	}
+    
+    public override void RoundUp(){}
     
     public override void Draw()
     {

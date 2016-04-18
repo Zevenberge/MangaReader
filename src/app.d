@@ -67,5 +67,9 @@ static this()
 static ~this()
 {
 	info("Shutting down application.");
+	trace("Rounding up controller");
+	controller.RoundUp;
+	trace("Saving global bookmark.");
+	GrandBookmark.saveBookmark;
 	
 }
