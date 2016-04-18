@@ -11,7 +11,7 @@ public class Style
    public static const int TextTabWidth = 20;
    public static const int TextReturnSpace = 18;
 
-   private static const string _fontFile = "res/LiberationSans-Regular.ttf";
+   private static const string _fontFile = "res/Harenosora.otf";
    private static Font _regularFont;
    public static Font RegularFont()
    {
