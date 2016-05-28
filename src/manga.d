@@ -23,6 +23,7 @@ public class Manga
   alias DSprite = dsfml.graphics.Sprite;
 
   private ResizingSprite _sprite;
+  private Texture _texture;
   private RenderWindow _window;
   private Page[] _pages;
   private int _currentPage;
@@ -177,9 +178,9 @@ public class Manga
     debug trace("Amount of pages is ", _pages.length);
     auto page = _pages[index];
     // Force a load of the texture if it is not already loaded.
-    if(page.Texture is null) page.LoadTexture;
+    if(_texture is null) _texture = new Texture;
     //Claim the texture.
-    auto texture = page.Texture; // Notational convenience.
+    page.LoadTexture(_texture);
     trace("Claimed the texture.");
     if(_sprite is null)
     {
@@ -191,10 +192,10 @@ public class Manga
     	_sprite.name = page.Filename;
    	}
     trace("Setting the sprite's texture.");
-    _sprite.setTexture(texture);
+    _sprite.setTexture(_texture);
 
     //Grab the width of the original texture.
-    Vector2u textureSize = texture.getSize;   
+    Vector2u textureSize = _texture.getSize;   
  
     // Place the texture rectangle at height 0.
     ResetTextureRect;
