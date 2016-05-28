@@ -128,7 +128,7 @@ public class Directory
        {
           subDirs ~= subFile;
        }
-	   subDirs.sort!((dirA, dirB) => dirA < dirB, SwapStrategy.unstable);
+	   subDirs.sort!((dirA, dirB) => dirA < dirB);
        return subDirs;
     }
 
