@@ -40,26 +40,45 @@ public class MangaController : Controller
 
     private bool KeyEventHandler(Event event)
     {
-    	switch(event.key.code) with (Keyboard.Key)
-    	{
-    		case Escape:
-    			RoundUp;
-    			.controller = new DirectoryController(_window, new Directory(_manga.Directory, null));
-    			break;
-			case Left:
-				_manga.NextPage;
+	if(event.key.control)
+	{
+    		switch(event.key.code) with (Keyboard.Key)
+		{
+				case R:
+					if(event.key.control) _manga.Rewind;
+					break;
+				case E:
+					if(event.key.control) _manga.End;
+					break;
+				case B:
+					if(event.key.control) _manga.ReturnToBookmark;
+					break;
+				default:
+		}
+	}
+	else
+	{
+		switch(event.key.code) with (Keyboard.Key)
+		{
+			case Escape:
+				RoundUp;
+				.controller = new DirectoryController(_window, new Directory(_manga.Directory, null));
 				break;
-			case Right:
-				_manga.PreviousPage;
-				break;
-			case Up:
-				_manga.MoveUp;
-				break;
-			case Down:
-				_manga.MoveDown;
-				break;
-			default:
-    	}
+				case Z:
+					_manga.NextPage;
+					break;
+				case X:
+					_manga.PreviousPage;
+					break;
+				case Up:
+					_manga.MoveUp;
+					break;
+				case Down:
+					_manga.MoveDown;
+					break;
+				default:
+		}
+	}
     	return false;
     }
     

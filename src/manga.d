@@ -78,7 +78,10 @@ public class Manga
   	 }
      return hasPages;
   }
-  
+ 
+  /**
+    Opens the manga at the last saved bookmark, if any.
+  */ 
   public void OpenManga(RenderWindow window)
   in
   {
@@ -94,22 +97,22 @@ public class Manga
   		return;
   	}
   	
-  	 int index;
   	 if(!_bookmark.currentBookmark.isNullOrEmpty)
   	 {
   	 	foreach(i, page; _pages)
   	 	{
   	 		if(_bookmark.currentBookmark == page.Filename)
   	 		{
-  	 			index = i.to!int;
+  	 			_bookmarkIndex  = i.to!int;
   	 			break;
   	 		}
   	 	}
   	 }
-  	 info("Opening at page ", index);
-  	 NewPage(index);
+  	 info("Opening at page ", _bookmarkIndex);
+  	 NewPage(_bookmarkIndex);
   	 info("Opened the manga.");
   }
+  private int _bookmarkIndex;
 
   /**
      Saves the window for future reference. This is forced by the constructor such that it can never be null.
@@ -159,6 +162,33 @@ public class Manga
   public bool PreviousPage()
   {
     return NewPage(_currentPage-1);  
+  }
+
+  /**
+    Flips over to the first page.
+  */
+  public bool Rewind()
+  {
+    trace("Rewinding manga to first page.");
+    return NewPage(0);
+  }
+
+  /**
+   Flips over to the last page.
+  */
+  public bool End()
+  {
+     trace("Moving to the last page in the manga.");
+     return NewPage((_pages.length-1).to!int);
+  }
+
+  /**
+   Flips over to the last stored bookmark.
+  */
+  public bool ReturnToBookmark()
+  {
+    trace("Reverting to bookmark");
+    return NewPage(_bookmarkIndex);
   }
 
   /**
