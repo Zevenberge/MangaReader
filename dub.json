@@ -1,8 +1,8 @@
 {
 	"name" : "mangareader",
 	"description" : "MangaReader application",
-	"lflags" : ["-L/usr/local/lib/dsfml"],
+	"lflags" : ["-L/usr/local/lib"],
 	"dependencies" : {
-	"dsfml" :  "~>2.0"
+	"dsfml" :  "~master"
 	}
 }
